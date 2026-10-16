@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNOC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- MENÚ LATERAL -->
+    <nav class="menu-lateral">
+        <h2>Menú RNOC</h2>
+        <ul>
+            <li><button onclick="mostrarModulo('modulo1')">1. Generar Posteo</button></li>
+            <li><button onclick="mostrarModulo('modulo2')">2. Consulta GPON's</button></li>
+            <li><button onclick="mostrarModulo('modulo3')">3. Formateador de Puertos</button></li>
+        </ul>
+    </nav>
+
+    <!-- ÁREA DE TRABAJO -->
+    <main class="contenido-principal">
+        
+        <!-- MÓDULO 1: GENERAR POSTEO -->
+        <div id="modulo1" class="modulo activo">
+            <h3>Generador de Posteo</h3>
+            
+            <div class="fila-selector">
+                <select id="selector_posteo" onchange="cambiarSubModulo()">
+                    <option value="falla_lineas">Falla de lineas</option>
+                    <option value="mca_mcm">MCA o MCM</option>
+                    <option value="enlaces">Enlaces</option>
+                </select>
+            </div>
+
+            <!-- Submódulos de Posteo -->
+            <div id="sub_falla_lineas" class="submodulo activo">
+                <div class="formulario">
+                    <div class="fila"><label>*SUCURSAL*</label><input type="text" id="fl_sucursal" placeholder="Ej. 160" onblur="autocompletarSucursal(this.id)"></div>
+                    <div class="fila"><label>*TITULO FALLA*</label><input type="text" id="fl_titulo" placeholder="Ej. FALLA MASIVA"></div>
+                    <div class="fila"><label>*TT*</label><input type="text" id="fl_tt" placeholder="Número de TT"></div>
+                    <div class="fila"><label>*OT*</label><input type="text" id="fl_ot" placeholder="Número de OT"></div>
+                    <div class="fila"><label>*#NODO/PUERTO*</label><input type="text" id="fl_nodo" placeholder="Ej. 89"></div>
+                    <div class="fila"><label>*CTC/HUB*</label><input type="text" id="fl_ctc" placeholder="Ej. CTC, RT09"></div>
+                    <div class="fila"><label>*COORDENADAS*</label><input type="text" id="fl_coordenadas" placeholder="Ej. 16816351351351"></div>
+                    <div class="fila"><label>*CLIENTES AFECTADOS*</label><input type="text" id="fl_clientes" placeholder="Ej. 800"></div>
+                </div>
+                <div class="botones">
+                    <button class="btn-blanco" onclick="copiarFallaLineas()">COPIAR</button>
+                    <button class="btn-blanco" onclick="limpiarCajas('sub_falla_lineas')">LIMPIAR</button>
+                </div>
+            </div>
+
+            <div id="sub_mca_mcm" class="submodulo">
+                <div class="formulario">
+                    <div class="fila"><label>*SUCURSAL*</label><input type="text" id="mc_sucursal" onblur="autocompletarSucursal(this.id)"></div>
+                    <div class="fila"><label>*AFECTACIÓN / SERVICIO*</label><input type="text" id="mc_afectacion"></div>
+                    <div class="fila"><label>*TT*</label><input type="text" id="mc_tt"></div>
+                    <div class="fila"><label>*OT*</label><input type="text" id="mc_ot"></div>
+                    <div class="fila"><label>*UBICACIÓN*</label><input type="text" id="mc_ubicacion"></div>
+                    <div class="fila"><label>*CONTACTO*</label><input type="text" id="mc_contacto"></div>
+                    <div class="fila"><label>*PARCHEO*</label><input type="text" id="mc_parcheo"></div>
+                    <div class="fila"><label>*ALARMA*</label><input type="text" id="mc_alarma"></div>
+                </div>
+                <div class="botones">
+                    <button class="btn-blanco" onclick="copiarMca()">COPIAR</button>
+                    <button class="btn-blanco" onclick="limpiarCajas('sub_mca_mcm')">LIMPIAR</button>
+                </div>
+            </div>
+
+            <div id="sub_enlaces" class="submodulo">
+                <div class="formulario">
+                    <div class="fila"><label>*SUCURSAL*</label><input type="text" id="en_sucursal" onblur="autocompletarSucursal(this.id)"></div>
+                    <div class="fila"><label>*AFECTACIÓN / SERVICIO*</label><input type="text" id="en_afectacion"></div>
+                    <div class="fila"><label>*TT*</label><input type="text" id="en_tt"></div>
+                    <div class="fila"><label>*OT*</label><input type="text" id="en_ot"></div>
+                </div>
+                <div class="botones">
+                    <button class="btn-blanco" onclick="copiarEnlaces()">COPIAR</button>
+                    <button class="btn-blanco" onclick="limpiarCajas('sub_enlaces')">LIMPIAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MÓDULO 2: CONSULTA GPON'S (UNIFICADO) -->
+        <div id="modulo2" class="modulo">
+            <h3>Limpiador de Series GPON (Universal)</h3>
+            <div class="formulario">
+                <div class="fila-columna">
+                    <label>Pega tus datos (Series en fila o columna) aquí:</label>
+                    <textarea id="gpon_entrada" rows="4" placeholder="Soporta Nokia, Huawei y ZTE..."></textarea>
+                </div>
+                <div class="botones" style="margin-bottom: 20px;">
+                    <button class="btn-blanco" onclick="formatearGponUniversal('gpon_entrada', 'gpon_salida')">LIMPIAR Y FORMATEAR</button>
+                    <button class="btn-blanco" onclick="limpiarGpon('gpon_entrada', 'gpon_salida')">BORRAR</button>
+                </div>
+                <div class="fila-columna">
+                    <label>Resultado (Horizontal separado por comas):</label>
+                    <textarea id="gpon_salida" rows="3" readonly placeholder="Aquí aparecerá el resultado..."></textarea>
+                </div>
+                <div class="botones">
+                    <button class="btn-blanco" onclick="copiarGpon('gpon_salida')">COPIAR RESULTADO</button>
+                </div>
+            </div>
+
+            <hr class="separador">
+
+            <h3>Identificador de Buffer e Hilo (Universal)</h3>
+            <div class="formulario">
+                <div class="fila-columna">
+                    <label>Pega la información completa del ticket aquí:</label>
+                    <textarea id="bh_entrada" rows="5" placeholder="Ej. GPON SALIDA TOTAL CONCURRENTE... o 0/4/16... o 1/8/7..."></textarea>
+                </div>
+                <div class="botones" style="margin-bottom: 20px;">
+                    <button class="btn-blanco" onclick="identificarBufferHiloUniversal('bh_entrada', 'bh_salida')">IDENTIFICAR DATOS</button>
+                    <button class="btn-blanco" onclick="limpiarBuffer('bh_entrada', 'bh_salida')">BORRAR</button>
+                </div>
+                <div class="fila-columna">
+                    <label>Resultado Final:</label>
+                    <textarea id="bh_salida" rows="4" readonly placeholder="Puerto (...) Buffer: (...) - Hilo: (...)"></textarea>
+                </div>
+                <div class="botones">
+                    <button class="btn-blanco" onclick="copiarBuffer('bh_salida')">COPIAR RESULTADO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MÓDULO 3: FORMATEADOR DE PUERTOS -->
+        <div id="modulo3" class="modulo">
+            <h3>Formateador de Puertos (Próximamente)</h3>
+        </div>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

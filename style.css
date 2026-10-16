@@ -1,0 +1,166 @@
+/* --- CONFIGURACIÓN GENERAL --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    background-color: #0f111a;
+    color: #e4e6eb;
+}
+
+/* --- MENÚ LATERAL --- */
+.menu-lateral {
+    width: 250px;
+    background-color: #1a1d2d; 
+    padding: 20px;
+    border-right: 1px solid #2d3142;
+}
+
+.menu-lateral h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #aeb4c8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.menu-lateral ul { list-style: none; }
+.menu-lateral li { margin-bottom: 10px; }
+
+.menu-lateral button {
+    width: 100%;
+    padding: 12px;
+    text-align: left;
+    background-color: transparent;
+    border: none;
+    color: #e4e6eb;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.menu-lateral button:hover { background-color: #2d3142; }
+
+/* --- ÁREA CENTRAL DE TRABAJO --- */
+.contenido-principal {
+    flex: 1; 
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.modulo {
+    display: none; 
+    background-color: #1a1d2d;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 800px;
+    border: 1px solid #2d3142;
+}
+
+.modulo.activo { display: block; }
+.modulo h3 { margin-bottom: 25px; color: #4da6ff; }
+
+/* --- FORMULARIOS, CAJAS Y TEXTAREAS --- */
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    margin-bottom: 30px;
+}
+
+.fila {
+    display: flex;
+    align-items: center;
+}
+
+.fila label {
+    width: 200px; 
+    font-weight: bold;
+    color: #aeb4c8;
+}
+
+.fila input {
+    flex: 1;
+    padding: 10px;
+    background-color: #0f111a;
+    border: 1px solid #2d3142;
+    color: #fff;
+    border-radius: 4px;
+    outline: none;
+}
+.fila input:focus { border-color: #4da6ff; }
+
+.fila-columna {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fila-columna label {
+    font-weight: bold;
+    color: #aeb4c8;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    background-color: #0f111a;
+    border: 1px solid #2d3142;
+    color: #fff;
+    border-radius: 4px;
+    outline: none;
+    font-family: monospace; 
+    resize: vertical;
+}
+textarea:focus { border-color: #4da6ff; }
+
+/* --- DISEÑO DEL MENÚ DESPLEGABLE --- */
+.fila-selector { margin-bottom: 25px; }
+
+select {
+    width: 100%;
+    padding: 12px;
+    background-color: #0f111a;
+    border: 1px solid #2d3142;
+    color: #4da6ff;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
+}
+select:focus { border-color: #4da6ff; }
+
+.submodulo { display: none; }
+.submodulo.activo { display: block; }
+
+/* --- BOTONES BLANCOS --- */
+.botones {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-blanco {
+    padding: 12px 30px;
+    background-color: #ffffff;
+    color: #2b3a67; 
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-blanco:hover { background-color: #e4e6eb; }
+
+/* --- SEPARADOR VISUAL --- */
+.separador {
+    border: none;
+    border-top: 1px solid #2d3142;
+    margin: 40px 0;
+}
