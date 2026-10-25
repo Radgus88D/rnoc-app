@@ -65,20 +65,18 @@ function portapapeles(texto) {
 
 // --- FUNCIONES UNIFICADAS: LIMPIADOR GPON UNIVERSAL ---
 function formatearGponUniversal(idIn, idOut) {
-    let entrada = document.getElementById(idIn).value;
-    if (!entrada.trim()) { alert("Por favor, pega el texto primero."); return; }
-
-    // Limpieza general de Serie, : y |
-    let textoLimpio = entrada.replace(/Serie/gi, '').replace(/:/g, '').replace(/\|/g, '');
-    
-    // Separamos por cualquier coma, salto de línea, tabulador o espacio (funciona para todas las marcas)
-    let elementos = textoLimpio.split(/[\n\t ,]+/);
-    
-    // Filtramos para quitar espacios vacíos
-    let elementosValidos = elementos.filter(item => item !== '');
-    
-    // Unimos de vuelta con una coma sin espacios
-    document.getElementById(idOut).value = elementosValidos.join(',');
+   let entrada = document.getElementById(idIn).value;
+   if (!entrada.trim()) { alert("Por favor, pega el texto primero."); return; }
+   // Limpieza general de Serie, : y |
+   let textoLimpio = entrada.replace(/Serie/gi, '').replace(/:/g, '').replace(/\|/g, '');
+   // Separamos por cualquier coma, salto de línea, tabulador o espacio (funciona para todas las marcas)
+   let elementos = textoLimpio.split(/[\n\t ,]+/);
+   // Filtramos para quitar espacios vacíos
+   let elementosValidos = elementos.filter(item => item !== '');
+   // --- NUEVA LÓGICA: ELIMINAR DUPLICADOS ---
+   let elementosUnicos = [...new Set(elementosValidos)];
+   // Unimos de vuelta con una coma sin espacios usando el array limpio
+   document.getElementById(idOut).value = elementosUnicos.join(',');
 }
 
 function limpiarGpon(idIn, idOut) {
