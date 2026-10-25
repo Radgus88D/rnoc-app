@@ -267,3 +267,52 @@ function autocompletarSucursal(idInput) {
         inputCaja.value = numeroEscrito + " - " + diccionarioSucursales[numeroEscrito];
     }
 }
+
+// --- FUNCIONES MÓDULO 3: CONSULTA NODO'S ---
+function procesarNodos(idIn, idOut) {
+   let texto = document.getElementById(idIn).value;
+   if (!texto.trim()) { alert("Por favor, pega el texto primero."); return; }
+   let lineas = texto.split('\n');
+   let registros = [];
+   // Expresión regular para buscar la hora (Ej: 13:02:18)
+   let regexHora = /\b(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b/;
+   // Expresión regular para buscar MACs de 12 caracteres (Ej: f88b.3735.08ed)
+   let regexMac = /\b[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\b/;
+   for (let linea of lineas) {
+       let matchHora = linea.match(regexHora);
+       let matchMac = linea.match(regexMac);
+       // Si la línea tiene tanto la hora como la MAC, la guardamos
+       if (matchHora && matchMac) {
+           registros.push({
+               hora: matchHora[0],
+               mac: matchMac[0].toLowerCase() // Pasamos a minúsculas por uniformidad
+           });
+       }
+   }
+   if (registros.length === 0) {
+       document.getElementById(idOut).value = "No se encontraron registros válidos con Hora y MAC.";
+       return;
+   }
+   // 1. ORDENAR CRONOLÓGICAMENTE DE MENOR A MAYOR HORA
+   registros.sort((a, b) => a.hora.localeCompare(b.hora));
+   // 2. EXTRAER SOLO LAS MACs ORDENADAS
+   let macsOrdenadas = registros.map(reg => reg.mac);
+   // 3. ELIMINAR DUPLICADOS PERO CONSERVANDO EL ORDEN
+   // Usamos filter para dejar solo la primera aparición de cada MAC
+   let macsUnicas = macsOrdenadas.filter((mac, index) => macsOrdenadas.indexOf(mac) === index);
+   // 4. IMPRIMIR SEPARADAS POR COMA Y SIN ESPACIOS
+   document.getElementById(idOut).value = macsUnicas.join(',');
+}
+function limpiarCajasNodo(idIn, idOut) {
+   document.getElementById(idIn).value = '';
+   document.getElementById(idOut).value = '';
+}
+function copiarTexto(idElemento) {
+   let resultado = document.getElementById(idElemento).value;
+   if (resultado === "" || resultado.includes("No se encontraron")) {
+       alert("No hay datos válidos para copiar.");
+       return;
+   }
+   // Reutilizamos tu función portapapeles() que ya existe en el código
+   portapapeles(resultado);
+}
