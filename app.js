@@ -258,7 +258,7 @@ const diccionarioSucursales = {
     "510": "Magdalena 2", "511": "Amatitan 2", "512": "Campeche", "513": "San Juan del Rio", "514": "Tequixquiac",
     "515": "Acambaro", "516": "San Francisco Del Ri", "517": "Coacalco", "518": "Cordoba", "519": "Orizaba",
     "520": "Tampico", "521": "Ciudad Mendoza", "522": "Coatzacoalcos", "523": "Oaxaca", "524": "Ajijic",
-    "526": "Ciudad Del Carmen", "527": "Coyoacan", "531": "Texcoco", "534": "Nezahualcoyotl", "537": "Valle de Chalco",
+    "526": "Ciudad Del Carmen", "527": "Coyoacan", "531": "Texcoco", "534": "Nezahualcoyotl", "537": "Valle de Chalco", "540": "Ecatepec",
     "546": "Ramos Arizpe", "547": "Arteaga"
 };
 
