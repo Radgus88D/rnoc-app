@@ -15,7 +15,7 @@
         <ul>
             <li><button onclick="mostrarModulo('modulo1')">1. Generar Posteo</button></li>
             <li><button onclick="mostrarModulo('modulo2')">2. Consulta GPON's</button></li>
-            <li><button onclick="mostrarModulo('modulo3')">3. Formateador de Puertos</button></li>
+            <li><button onclick="mostrarModulo('modulo3')">3. Consulta Nodo's</button></li>
         </ul>
     </nav>
 
@@ -126,10 +126,27 @@
             </div>
         </div>
 
-        <!-- MÓDULO 3: FORMATEADOR DE PUERTOS -->
-        <div id="modulo3" class="modulo">
-            <h3>Formateador de Puertos (Próximamente)</h3>
-        </div>
+        <!-- MÓDULO 3: CONSULTA NODO'S -->
+<div id="modulo3" class="modulo">
+<h3>Consulta Nodo's</h3>
+<div class="formulario">
+<div class="fila-columna">
+<label>Pega los registros del nodo aquí (con Hora y MAC):</label>
+<textarea id="nodo_entrada" rows="6" placeholder="Ej: C3/0/2/UB  f88b.3735.08ed 1252 w-online(pt)Oct 25 13:02:18..."></textarea>
+</div>
+<div class="botones" style="margin-bottom: 20px;">
+<button class="btn-blanco" onclick="procesarNodos('nodo_entrada', 'nodo_salida')">ORDENAR Y EXTRAER MACs</button>
+<button class="btn-blanco" onclick="limpiarCajasNodo('nodo_entrada', 'nodo_salida')">BORRAR</button>
+</div>
+<div class="fila-columna">
+<label>MAC Address (Ordenadas cronológicamente de menor a mayor hora, sin espacios):</label>
+<textarea id="nodo_salida" rows="4" readonly placeholder="aaaa.bbbb.cccc,dddd.eeee.ffff..."></textarea>
+</div>
+<div class="botones">
+<button class="btn-blanco" onclick="copiarTexto('nodo_salida')">COPIAR RESULTADO</button>
+</div>
+</div>
+</div>
 
     </main>
 
