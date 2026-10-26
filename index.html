@@ -16,6 +16,7 @@
             <li><button onclick="mostrarModulo('modulo1')">1. Generar Posteo</button></li>
             <li><button onclick="mostrarModulo('modulo2')">2. Consulta GPON's</button></li>
             <li><button onclick="mostrarModulo('modulo3')">3. Consulta Nodo's</button></li>
+            <li><button onclick="mostrarModulo('modulo4')">4. GPON Masiva</button></li>
         </ul>
     </nav>
 
@@ -138,6 +139,24 @@
 </div>
 <div class="botones">
 <button class="btn-blanco" onclick="copiarTexto('nodo_salida')">COPIAR RESULTADO</button>
+</div>
+</div>
+</div>
+        
+        <!-- MÓDULO 4: GPON MASIVA -->
+<div id="modulo4" class="modulo">
+<h3>GPON Masiva</h3>
+<div class="formulario">
+<div class="fila-columna">
+<label>Pega los registros de GPON Masiva aquí:</label>
+<textarea id="gm_entrada" rows="6" placeholder="Ej: 128450560,1/1/2/9-399,H27,026,RT17,07,09,T00..."></textarea>
+</div>
+<div class="fila-columna">
+<label>Resultado Visual:</label>
+<!-- Aquí adentro JavaScript dibujará la tabla -->
+<div id="gm_salida" class="caja-tabla">
+<span style="color: #aeb4c8;">La tabla aparecerá aquí automáticamente...</span>
+</div>
 </div>
 </div>
 </div>
