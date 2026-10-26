@@ -269,63 +269,79 @@ function autocompletarSucursal(idInput) {
 }
 
 // --- FUNCIONES MÓDULO 3: CONSULTA NODO'S ---
+
 function procesarNodos(idIn, idOut) {
    let texto = document.getElementById(idIn).value;
    if (!texto.trim()) { alert("Por favor, pega el texto primero."); return; }
    let lineas = texto.split('\n');
    let registros = [];
-   // Expresiones regulares para extraer Hora y MAC
-   let regexHora = /\b(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b/;
+   // Regex mejorado: Ahora detecta horas con un solo dígito inicial (Ej: 8:51:47 o 13:01:48)
+   let regexHora = /\b(?:\d|[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b/;
    let regexMac = /\b[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\b/;
+   // Función matemática para convertir la hora a segundos totales
+   function timeToSeconds(hms) {
+       let partes = hms.split(':');
+       return parseInt(partes[0]) * 3600 + parseInt(partes[1]) * 60 + parseInt(partes[2]);
+   }
    for (let linea of lineas) {
        let matchHora = linea.match(regexHora);
        let matchMac = linea.match(regexMac);
        if (matchHora && matchMac) {
            registros.push({
-               hora: matchHora[0],
+               horaOriginal: matchHora[0],
+               segundos: timeToSeconds(matchHora[0]), // Guardamos los segundos exactos
                mac: matchMac[0].toLowerCase()
            });
        }
    }
    if (registros.length === 0) {
-       document.getElementById(idOut).value = "No se encontraron registros válidos con Hora y MAC.";
+       document.getElementById(idOut).value = "No se encontraron registros válidos.";
        document.getElementById('contador_nodos').innerText = "";
        return;
    }
-   // 1. ORDENAR CRONOLÓGICAMENTE DE MENOR A MAYOR
-   registros.sort((a, b) => a.hora.localeCompare(b.hora));
-   // Función matemática para convertir la hora (HH:MM:SS) a segundos totales
-   function timeToSeconds(hms) {
-       let partes = hms.split(':');
-       return parseInt(partes[0]) * 3600 + parseInt(partes[1]) * 60 + parseInt(partes[2]);
-   }
-   // 2. FILTRAR POR LA REGLA DE RÁFAGA (0 a 8 segundos de diferencia)
-   let registrosValidos = [];
-   if (registros.length > 1) {
-       for (let i = 0; i < registros.length; i++) {
-           let actual = timeToSeconds(registros[i].hora);
-           // Calculamos la diferencia con el registro anterior y el siguiente
-           let diffPrev = (i > 0) ? (actual - timeToSeconds(registros[i-1].hora)) : Infinity;
-           let diffNext = (i < registros.length - 1) ? (timeToSeconds(registros[i+1].hora) - actual) : Infinity;
-           // Si está a 8 segundos o menos de su vecino izquierdo O de su vecino derecho, entra.
-           if ((diffPrev >= 0 && diffPrev <= 8) || (diffNext >= 0 && diffNext <= 8)) {
-               registrosValidos.push(registros[i]);
+   // 1. ORDENAR CRONOLÓGICAMENTE (Numéricamente por segundos)
+   registros.sort((a, b) => a.segundos - b.segundos);
+   // 2. AGRUPAR EN BLOQUES (RÁFAGAS) SEPARADAS
+   let bloques = [];
+   let bloqueActual = [registros[0]];
+   for (let i = 1; i < registros.length; i++) {
+       let diff = registros[i].segundos - registros[i-1].segundos;
+       // Si la diferencia es <= 8 segundos, es una caída continua (sigue en el mismo bloque)
+       if (diff >= 0 && diff <= 8) {
+           bloqueActual.push(registros[i]);
+       } else {
+           // Se rompió la regla de los 8 segundos.
+           // Guardamos el bloque actual (solo si tiene más de 1 registro para ser considerado falla)
+           if (bloqueActual.length > 1) {
+               bloques.push(bloqueActual);
            }
+           // Empezamos a contar un nuevo bloque desde este registro
+           bloqueActual = [registros[i]];
        }
    }
-   // 3. EXTRAER LAS MACs Y ELIMINAR DUPLICADOS
-   let macsOrdenadas = registrosValidos.map(reg => reg.mac);
-   let macsUnicas = [...new Set(macsOrdenadas)]; // Filtra repetidos
-   // 4. IMPRIMIR RESULTADOS Y ACTUALIZAR CONTADOR ANARANJADO
-   document.getElementById(idOut).value = macsUnicas.join(',');
-   // Mostramos cuántos registros lograron pasar la prueba
-   if (registrosValidos.length > 0) {
-       document.getElementById('contador_nodos').innerText = `(${registrosValidos.length} registros cumplen la regla)`;
-   } else {
-       document.getElementById('contador_nodos').innerText = `(0 registros cumplen la regla)`;
-       document.getElementById(idOut).value = "Ningún registro cumplió la regla de los 8 segundos.";
+   // Al salir del bucle, revisamos si el último bloque también era válido
+   if (bloqueActual.length > 1) {
+       bloques.push(bloqueActual);
    }
+   // 3. ENCONTRAR EL BLOQUE (LA FALLA) MÁS GRANDE
+   if (bloques.length === 0) {
+       document.getElementById('contador_nodos').innerText = `(0 registros cumplen la regla)`;
+       document.getElementById(idOut).value = "Ningún registro cumplió la regla de continuidad (0 a 8 segundos).";
+       return;
+   }
+   let bloqueMayor = bloques[0];
+   for (let i = 1; i < bloques.length; i++) {
+       if (bloques[i].length > bloqueMayor.length) {
+           bloqueMayor = bloques[i];
+       }
+   }
+   // 4. EXTRAER MACS Y QUITAR DUPLICADOS DE ESE BLOQUE MAYOR
+   let macsUnicas = [...new Set(bloqueMayor.map(reg => reg.mac))];
+   // 5. MOSTRAR RESULTADOS Y ACTUALIZAR CONTADOR
+   document.getElementById(idOut).value = macsUnicas.join(',');
+   document.getElementById('contador_nodos').innerText = `(${bloqueMayor.length} registros en la ráfaga principal)`;
 }
+
 function limpiarCajasNodo(idIn, idOut) {
    document.getElementById(idIn).value = '';
    document.getElementById(idOut).value = '';
