@@ -21,38 +21,38 @@ function limpiarCajas(idSubmodulo) {
 // --- FUNCIONES MÓDULO 1: GENERAR POSTEO ---
 function copiarFallaLineas() {
     let t = `*RNOC Irving Navarro - Ing. N2 de RNOC*
-*SUCURSAL* ${document.getElementById('fl_sucursal').value}
-*TITULO FALLA* ${document.getElementById('fl_titulo').value}
-*TT* ${document.getElementById('fl_tt').value}
-*OT* ${document.getElementById('fl_ot').value}
-*#NODO/PUERTO* ${document.getElementById('fl_nodo').value}
-*CTC/HUB* ${document.getElementById('fl_ctc').value}
-*COORDENADAS* ${document.getElementById('fl_coordenadas').value}
-*CLIENTES AFECTADOS* ${document.getElementById('fl_clientes').value}
+*SUCURSAL:* ${document.getElementById('fl_sucursal').value}
+*TITULO FALLA:* ${document.getElementById('fl_titulo').value}
+*TT:* ${document.getElementById('fl_tt').value}
+*OT:* ${document.getElementById('fl_ot').value}
+*#NODO/PUERTO:* ${document.getElementById('fl_nodo').value}
+*CTC/HUB:* ${document.getElementById('fl_ctc').value}
+*COORDENADAS:* ${document.getElementById('fl_coordenadas').value}
+*CLIENTES AFECTADOS:* ${document.getElementById('fl_clientes').value}
 *De su apoyo para la atención.*`;
     portapapeles(t);
 }
 
 function copiarMca() {
     let t = `*RNOC Irving Navarro - Ing. N2 de RNOC*
-*SUCURSAL* ${document.getElementById('mc_sucursal').value}
-*AFECTACIÓN / SERVICIO* ${document.getElementById('mc_afectacion').value}
-*TT* ${document.getElementById('mc_tt').value}
-*OT* ${document.getElementById('mc_ot').value}
-*UBICACIÓN* ${document.getElementById('mc_ubicacion').value}
-*CONTACTO* ${document.getElementById('mc_contacto').value}
-*PARCHEO* ${document.getElementById('mc_parcheo').value}
-*ALARMA* ${document.getElementById('mc_alarma').value}
+*SUCURSAL:* ${document.getElementById('mc_sucursal').value}
+*AFECTACIÓN / SERVICIO:* ${document.getElementById('mc_afectacion').value}
+*TT:* ${document.getElementById('mc_tt').value}
+*OT:* ${document.getElementById('mc_ot').value}
+*UBICACIÓN:* ${document.getElementById('mc_ubicacion').value}
+*CONTACTO:* ${document.getElementById('mc_contacto').value}
+*PARCHEO:* ${document.getElementById('mc_parcheo').value}
+*ALARMA:* ${document.getElementById('mc_alarma').value}
 *De su apoyo para la atención.*`;
     portapapeles(t);
 }
 
 function copiarEnlaces() {
     let t = `*RNOC Irving Navarro - Ing. N2 de RNOC*
-*SUCURSAL* ${document.getElementById('en_sucursal').value}
-*AFECTACIÓN / SERVICIO* ${document.getElementById('en_afectacion').value}
-*TT* ${document.getElementById('en_tt').value}
-*OT* ${document.getElementById('en_ot').value}
+*SUCURSAL:* ${document.getElementById('en_sucursal').value}
+*AFECTACIÓN / SERVICIO:* ${document.getElementById('en_afectacion').value}
+*TT:* ${document.getElementById('en_tt').value}
+*OT:* ${document.getElementById('en_ot').value}
 *De su apoyo para la atención.*`;
     portapapeles(t);
 }
