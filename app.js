@@ -66,16 +66,11 @@ function portapapeles(texto) {
 // --- FUNCIONES UNIFICADAS: LIMPIADOR GPON UNIVERSAL ---
 function formatearGponUniversal(idIn, idOut) {
    let entrada = document.getElementById(idIn).value;
-   if (!entrada.trim()) { alert("Por favor, pega el texto primero."); return; }
-   // Limpieza general de Serie, : y |
+   if (!entrada.trim()) { document.getElementById(idOut).value = ''; return; }
    let textoLimpio = entrada.replace(/Serie/gi, '').replace(/:/g, '').replace(/\|/g, '');
-   // Separamos por cualquier coma, salto de línea, tabulador o espacio (funciona para todas las marcas)
    let elementos = textoLimpio.split(/[\n\t ,]+/);
-   // Filtramos para quitar espacios vacíos
    let elementosValidos = elementos.filter(item => item !== '');
-   // --- NUEVA LÓGICA: ELIMINAR DUPLICADOS ---
    let elementosUnicos = [...new Set(elementosValidos)];
-   // Unimos de vuelta con una coma sin espacios usando el array limpio
    document.getElementById(idOut).value = elementosUnicos.join(',');
 }
 
@@ -98,47 +93,30 @@ const codigoColores = {
 
 // --- FUNCIÓN UNIFICADA: IDENTIFICADOR DE BUFFER E HILO UNIVERSAL ---
 function identificarBufferHiloUniversal(idIn, idOut) {
-    let texto = document.getElementById(idIn).value;
-    if (!texto.trim()) { alert("Por favor, pega el texto del ticket primero."); return; }
-
-    // Regex para buscar los puertos. Le agregamos 'g' al final para que busque todos.
-    let regexPuerto = /\b(?:\d+\/\d+\/\d+\/\d+|[01]\/\d+\/\d+)/g;
-    
-    // Regex para buscar los RT. Le agregamos 'g' al final para que busque todos.
-    let regexRT = /RT\d{2},(\d{2}),(\d{2})/g;
-
-    // Obtenemos todas las coincidencias en un arreglo (array)
-    let matchesPuerto = texto.match(regexPuerto) || [];
-    let matchesRT = [...texto.matchAll(regexRT)]; // Usamos matchAll para capturar también los grupos (Buffer e Hilo)
-
-    // Si no encuentra nada, avisa
-    if (matchesPuerto.length === 0 && matchesRT.length === 0) {
-        document.getElementById(idOut).value = "No se encontraron datos reconocibles.";
-        return;
-    }
-
-    let resultados = [];
-
-    // Recorremos las coincidencias de los puertos
-    for (let i = 0; i < matchesPuerto.length; i++) {
-        let puerto = matchesPuerto[i];
-        let colorBuffer = "Desconocido";
-        let colorHilo = "Desconocido";
-
-        // Si hay una coincidencia de RT correspondiente para este puerto
-        if (i < matchesRT.length) {
-            let numeroBuffer = parseInt(matchesRT[i][1], 10);
-            let numeroHilo = parseInt(matchesRT[i][2], 10);
-            colorBuffer = codigoColores[numeroBuffer] || "Color no registrado";
-            colorHilo = codigoColores[numeroHilo] || "Color no registrado";
-        }
-
-        // Armamos la cadena para esta línea y la agregamos al arreglo
-        resultados.push(`Puerto (${puerto}) Buffer: (${colorBuffer}) - Hilo: (${colorHilo})`);
-    }
-
-    // Unimos todos los resultados con un salto de línea (\n)
-    document.getElementById(idOut).value = resultados.join('\n\n'); 
+   let texto = document.getElementById(idIn).value;
+   if (!texto.trim()) { document.getElementById(idOut).value = ''; return; }
+   let regexPuerto = /\b(?:\d+\/\d+\/\d+\/\d+|[01]\/\d+\/\d+)/g;
+   let regexRT = /RT\d{2},(\d{2}),(\d{2})/g;
+   let matchesPuerto = texto.match(regexPuerto) || [];
+   let matchesRT = [...texto.matchAll(regexRT)];
+   if (matchesPuerto.length === 0 && matchesRT.length === 0) {
+       document.getElementById(idOut).value = "No se encontraron datos reconocibles.";
+       return;
+   }
+   let resultados = [];
+   for (let i = 0; i < matchesPuerto.length; i++) {
+       let puerto = matchesPuerto[i];
+       let colorBuffer = "Desconocido";
+       let colorHilo = "Desconocido";
+       if (i < matchesRT.length) {
+           let numeroBuffer = parseInt(matchesRT[i][1], 10);
+           let numeroHilo = parseInt(matchesRT[i][2], 10);
+           colorBuffer = codigoColores[numeroBuffer] || "Color no registrado";
+           colorHilo = codigoColores[numeroHilo] || "Color no registrado";
+       }
+       resultados.push(`Puerto (${puerto}) Buffer: (${colorBuffer}) - Hilo: (${colorHilo})`);
+   }
+   document.getElementById(idOut).value = resultados.join('\n\n');
 }
 
 function limpiarBuffer(idIn, idOut) {
@@ -272,13 +250,15 @@ function autocompletarSucursal(idInput) {
 
 function procesarNodos(idIn, idOut) {
    let texto = document.getElementById(idIn).value;
-   if (!texto.trim()) { alert("Por favor, pega el texto primero."); return; }
+   if (!texto.trim()) {
+       document.getElementById(idOut).value = '';
+       document.getElementById('contador_nodos').innerText = "";
+       return;
+   }
    let lineas = texto.split('\n');
    let registros = [];
-   // Regex mejorado: Ahora detecta horas con un solo dígito inicial (Ej: 8:51:47 o 13:01:48)
    let regexHora = /\b(?:\d|[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b/;
    let regexMac = /\b[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\b/;
-   // Función matemática para convertir la hora a segundos totales
    function timeToSeconds(hms) {
        let partes = hms.split(':');
        return parseInt(partes[0]) * 3600 + parseInt(partes[1]) * 60 + parseInt(partes[2]);
@@ -289,7 +269,7 @@ function procesarNodos(idIn, idOut) {
        if (matchHora && matchMac) {
            registros.push({
                horaOriginal: matchHora[0],
-               segundos: timeToSeconds(matchHora[0]), // Guardamos los segundos exactos
+               segundos: timeToSeconds(matchHora[0]),
                mac: matchMac[0].toLowerCase()
            });
        }
@@ -299,31 +279,19 @@ function procesarNodos(idIn, idOut) {
        document.getElementById('contador_nodos').innerText = "";
        return;
    }
-   // 1. ORDENAR CRONOLÓGICAMENTE (Numéricamente por segundos)
    registros.sort((a, b) => a.segundos - b.segundos);
-   // 2. AGRUPAR EN BLOQUES (RÁFAGAS) SEPARADAS
    let bloques = [];
    let bloqueActual = [registros[0]];
    for (let i = 1; i < registros.length; i++) {
        let diff = registros[i].segundos - registros[i-1].segundos;
-       // Si la diferencia es <= 8 segundos, es una caída continua (sigue en el mismo bloque)
        if (diff >= 0 && diff <= 8) {
            bloqueActual.push(registros[i]);
        } else {
-           // Se rompió la regla de los 8 segundos.
-           // Guardamos el bloque actual (solo si tiene más de 1 registro para ser considerado falla)
-           if (bloqueActual.length > 1) {
-               bloques.push(bloqueActual);
-           }
-           // Empezamos a contar un nuevo bloque desde este registro
+           if (bloqueActual.length > 1) { bloques.push(bloqueActual); }
            bloqueActual = [registros[i]];
        }
    }
-   // Al salir del bucle, revisamos si el último bloque también era válido
-   if (bloqueActual.length > 1) {
-       bloques.push(bloqueActual);
-   }
-   // 3. ENCONTRAR EL BLOQUE (LA FALLA) MÁS GRANDE
+   if (bloqueActual.length > 1) { bloques.push(bloqueActual); }
    if (bloques.length === 0) {
        document.getElementById('contador_nodos').innerText = `(0 registros cumplen la regla)`;
        document.getElementById(idOut).value = "Ningún registro cumplió la regla de continuidad (0 a 8 segundos).";
@@ -331,13 +299,9 @@ function procesarNodos(idIn, idOut) {
    }
    let bloqueMayor = bloques[0];
    for (let i = 1; i < bloques.length; i++) {
-       if (bloques[i].length > bloqueMayor.length) {
-           bloqueMayor = bloques[i];
-       }
+       if (bloques[i].length > bloqueMayor.length) { bloqueMayor = bloques[i]; }
    }
-   // 4. EXTRAER MACS Y QUITAR DUPLICADOS DE ESE BLOQUE MAYOR
    let macsUnicas = [...new Set(bloqueMayor.map(reg => reg.mac))];
-   // 5. MOSTRAR RESULTADOS Y ACTUALIZAR CONTADOR
    document.getElementById(idOut).value = macsUnicas.join(',');
    document.getElementById('contador_nodos').innerText = `(${bloqueMayor.length} registros en la ráfaga principal)`;
 }
