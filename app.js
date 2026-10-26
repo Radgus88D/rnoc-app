@@ -319,3 +319,30 @@ function copiarTexto(idElemento) {
    }
    portapapeles(resultado);
 }
+
+// ========================================================
+// AUTOMATIZACIÓN ZERO-CLICK (EJECUCIÓN AL PEGAR TEXTO)
+// ========================================================
+document.addEventListener("DOMContentLoaded", function() {
+   // 1. Reaccionar en Limpiador de Series GPON
+   let gponEntrada = document.getElementById('gpon_entrada');
+   if (gponEntrada) {
+       gponEntrada.addEventListener('input', function() {
+           formatearGponUniversal('gpon_entrada', 'gpon_salida');
+       });
+   }
+   // 2. Reaccionar en Identificador de Buffer e Hilo
+   let bhEntrada = document.getElementById('bh_entrada');
+   if (bhEntrada) {
+       bhEntrada.addEventListener('input', function() {
+           identificarBufferHiloUniversal('bh_entrada', 'bh_salida');
+       });
+   }
+   // 3. Reaccionar en Consulta Nodo's (MACs)
+   let nodoEntrada = document.getElementById('nodo_entrada');
+   if (nodoEntrada) {
+       nodoEntrada.addEventListener('input', function() {
+           procesarNodos('nodo_entrada', 'nodo_salida');
+       });
+   }
+});
