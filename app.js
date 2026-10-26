@@ -320,6 +320,80 @@ function copiarTexto(idElemento) {
    portapapeles(resultado);
 }
 
+// --- FUNCIONES MÓDULO 4: GPON MASIVA ---
+function procesarGponMasiva() {
+   let texto = document.getElementById('gm_entrada').value;
+   let contenedorSalida = document.getElementById('gm_salida');
+   if (!texto.trim()) {
+       contenedorSalida.innerHTML = '<span style="color: #aeb4c8;">La tabla aparecerá aquí automáticamente...</span>';
+       return;
+   }
+   let lineas = texto.split('\n');
+   let registros = [];
+   // Diccionario de colores (Fondo y Texto) para Hilo y Buffer
+   const paletaColores = {
+       1: {bg: "#0052cc", text: "#fff"}, // Azul
+       2: {bg: "#ff8c00", text: "#fff"}, // Naranja
+       3: {bg: "#28a745", text: "#fff"}, // Verde
+       4: {bg: "#8b4513", text: "#fff"}, // Café
+       5: {bg: "#6c757d", text: "#fff"}, // Gris
+       6: {bg: "#ffffff", text: "#000"}, // Blanco
+       7: {bg: "#dc3545", text: "#fff"}, // Rojo
+       8: {bg: "#343a40", text: "#fff"}, // Negro
+       9: {bg: "#ffc107", text: "#000"}, // Amarillo
+       10: {bg: "#6f42c1", text: "#fff"}, // Violeta
+       11: {bg: "#e83e8c", text: "#fff"}, // Rosa
+       12: {bg: "#17a2b8", text: "#fff"}  // Celeste
+   };
+   for (let linea of lineas) {
+       let columnas = linea.split(',');
+       // Validamos que sea una línea correcta (mínimo 14 columnas y que la col 1 parezca puerto)
+       if (columnas.length >= 14 && columnas[1].includes('/')) {
+           registros.push({
+               gpon: columnas[1].trim(),
+               hub: columnas[2].trim(),
+               olt: columnas[3].trim(),
+               rt: columnas[4].trim(),
+               bfrStr: columnas[5].trim(),
+               bfrNum: parseInt(columnas[5], 10),
+               hiloStr: columnas[6].trim(),
+               hiloNum: parseInt(columnas[6], 10),
+               tcl: columnas[7].trim(),
+               clte: columnas[13].trim()
+           });
+       }
+   }
+   if (registros.length === 0) {
+       contenedorSalida.innerHTML = '<span style="color: #dc3545;">No se detectaron registros válidos en formato CSV.</span>';
+       return;
+   }
+   // Dibujamos la tabla HTML dinámica
+   let html = `<table class="tabla-gpon">
+<thead>
+<tr>
+<th>GPON</th><th>HUB</th><th>OLT</th><th>RT</th>
+<th>BFR</th><th>HILO</th><th>TCL</th><th>CLTE</th>
+</tr>
+</thead>
+<tbody>`;
+   for (let reg of registros) {
+       let colBfr = paletaColores[reg.bfrNum] || {bg: "transparent", text: "#fff"};
+       let colHilo = paletaColores[reg.hiloNum] || {bg: "transparent", text: "#fff"};
+       html += `<tr>
+<td>${reg.gpon}</td>
+<td>${reg.hub}</td>
+<td>${reg.olt}</td>
+<td>${reg.rt}</td>
+<td style="background-color: ${colBfr.bg}; color: ${colBfr.text}; font-weight: bold;">${reg.bfrStr}</td>
+<td style="background-color: ${colHilo.bg}; color: ${colHilo.text}; font-weight: bold;">${reg.hiloStr}</td>
+<td>${reg.tcl}</td>
+<td>${reg.clte}</td>
+</tr>`;
+   }
+   html += `</tbody></table>`;
+   contenedorSalida.innerHTML = html;
+}
+
 // ========================================================
 // AUTOMATIZACIÓN ZERO-CLICK (EJECUCIÓN AL PEGAR TEXTO)
 // ========================================================
@@ -344,5 +418,10 @@ document.addEventListener("DOMContentLoaded", function() {
        nodoEntrada.addEventListener('input', function() {
            procesarNodos('nodo_entrada', 'nodo_salida');
        });
+   }
+    // 4. Reaccionar en GPON Masiva
+   let gmEntrada = document.getElementById('gm_entrada');
+   if (gmEntrada) {
+       gmEntrada.addEventListener('input', procesarGponMasiva);
    }
 });
