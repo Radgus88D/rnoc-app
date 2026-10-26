@@ -274,45 +274,68 @@ function procesarNodos(idIn, idOut) {
    if (!texto.trim()) { alert("Por favor, pega el texto primero."); return; }
    let lineas = texto.split('\n');
    let registros = [];
-   // Expresión regular para buscar la hora (Ej: 13:02:18)
+   // Expresiones regulares para extraer Hora y MAC
    let regexHora = /\b(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b/;
-   // Expresión regular para buscar MACs de 12 caracteres (Ej: f88b.3735.08ed)
    let regexMac = /\b[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\b/;
    for (let linea of lineas) {
        let matchHora = linea.match(regexHora);
        let matchMac = linea.match(regexMac);
-       // Si la línea tiene tanto la hora como la MAC, la guardamos
        if (matchHora && matchMac) {
            registros.push({
                hora: matchHora[0],
-               mac: matchMac[0].toLowerCase() // Pasamos a minúsculas por uniformidad
+               mac: matchMac[0].toLowerCase()
            });
        }
    }
    if (registros.length === 0) {
        document.getElementById(idOut).value = "No se encontraron registros válidos con Hora y MAC.";
+       document.getElementById('contador_nodos').innerText = "";
        return;
    }
-   // 1. ORDENAR CRONOLÓGICAMENTE DE MENOR A MAYOR HORA
+   // 1. ORDENAR CRONOLÓGICAMENTE DE MENOR A MAYOR
    registros.sort((a, b) => a.hora.localeCompare(b.hora));
-   // 2. EXTRAER SOLO LAS MACs ORDENADAS
-   let macsOrdenadas = registros.map(reg => reg.mac);
-   // 3. ELIMINAR DUPLICADOS PERO CONSERVANDO EL ORDEN
-   // Usamos filter para dejar solo la primera aparición de cada MAC
-   let macsUnicas = macsOrdenadas.filter((mac, index) => macsOrdenadas.indexOf(mac) === index);
-   // 4. IMPRIMIR SEPARADAS POR COMA Y SIN ESPACIOS
+   // Función matemática para convertir la hora (HH:MM:SS) a segundos totales
+   function timeToSeconds(hms) {
+       let partes = hms.split(':');
+       return parseInt(partes[0]) * 3600 + parseInt(partes[1]) * 60 + parseInt(partes[2]);
+   }
+   // 2. FILTRAR POR LA REGLA DE RÁFAGA (0 a 8 segundos de diferencia)
+   let registrosValidos = [];
+   if (registros.length > 1) {
+       for (let i = 0; i < registros.length; i++) {
+           let actual = timeToSeconds(registros[i].hora);
+           // Calculamos la diferencia con el registro anterior y el siguiente
+           let diffPrev = (i > 0) ? (actual - timeToSeconds(registros[i-1].hora)) : Infinity;
+           let diffNext = (i < registros.length - 1) ? (timeToSeconds(registros[i+1].hora) - actual) : Infinity;
+           // Si está a 8 segundos o menos de su vecino izquierdo O de su vecino derecho, entra.
+           if ((diffPrev >= 0 && diffPrev <= 8) || (diffNext >= 0 && diffNext <= 8)) {
+               registrosValidos.push(registros[i]);
+           }
+       }
+   }
+   // 3. EXTRAER LAS MACs Y ELIMINAR DUPLICADOS
+   let macsOrdenadas = registrosValidos.map(reg => reg.mac);
+   let macsUnicas = [...new Set(macsOrdenadas)]; // Filtra repetidos
+   // 4. IMPRIMIR RESULTADOS Y ACTUALIZAR CONTADOR ANARANJADO
    document.getElementById(idOut).value = macsUnicas.join(',');
+   // Mostramos cuántos registros lograron pasar la prueba
+   if (registrosValidos.length > 0) {
+       document.getElementById('contador_nodos').innerText = `(${registrosValidos.length} registros cumplen la regla)`;
+   } else {
+       document.getElementById('contador_nodos').innerText = `(0 registros cumplen la regla)`;
+       document.getElementById(idOut).value = "Ningún registro cumplió la regla de los 8 segundos.";
+   }
 }
 function limpiarCajasNodo(idIn, idOut) {
    document.getElementById(idIn).value = '';
    document.getElementById(idOut).value = '';
+   document.getElementById('contador_nodos').innerText = ''; // Borra también el contador
 }
 function copiarTexto(idElemento) {
    let resultado = document.getElementById(idElemento).value;
-   if (resultado === "" || resultado.includes("No se encontraron")) {
+   if (resultado === "" || resultado.includes("No se encontraron") || resultado.includes("Ningún registro")) {
        alert("No hay datos válidos para copiar.");
        return;
    }
-   // Reutilizamos tu función portapapeles() que ya existe en el código
    portapapeles(resultado);
 }
