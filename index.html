@@ -84,49 +84,44 @@
         </div>
 
         <!-- MÓDULO 2: CONSULTA GPON'S (UNIFICADO) -->
-        <div id="modulo2" class="modulo">
-            <h3>Limpiador de Series GPON (Universal)</h3>
-            <div class="formulario">
-                <div class="fila-columna">
-                    <label>Pega tus datos (Series en fila o columna) aquí:</label>
-                    <textarea id="gpon_entrada" rows="4" placeholder="Soporta Nokia, Huawei y ZTE..."></textarea>
-                </div>
-                <div class="botones" style="margin-bottom: 20px;">
-                    <button class="btn-blanco" onclick="formatearGponUniversal('gpon_entrada', 'gpon_salida')">LIMPIAR Y FORMATEAR</button>
-                    <button class="btn-blanco" onclick="limpiarGpon('gpon_entrada', 'gpon_salida')">BORRAR</button>
-                </div>
-                <div class="fila-columna">
-                    <label>Resultado (Horizontal separado por comas):</label>
-                    <textarea id="gpon_salida" rows="3" readonly placeholder="Aquí aparecerá el resultado..."></textarea>
-                </div>
-                <div class="botones">
-                    <button class="btn-blanco" onclick="copiarGpon('gpon_salida')">COPIAR RESULTADO</button>
-                </div>
-            </div>
-
-            <hr class="separador">
-
-            <h3>Identificador de Buffer e Hilo (Universal)</h3>
-            <div class="formulario">
-                <div class="fila-columna">
-                    <label>Pega la información completa del ticket aquí:</label>
-                    <textarea id="bh_entrada" rows="5" placeholder="Ej. GPON SALIDA TOTAL CONCURRENTE... o 0/4/16... o 1/8/7..."></textarea>
-                </div>
-                <div class="botones" style="margin-bottom: 20px;">
-                    <button class="btn-blanco" onclick="identificarBufferHiloUniversal('bh_entrada', 'bh_salida')">IDENTIFICAR DATOS</button>
-                    <button class="btn-blanco" onclick="limpiarBuffer('bh_entrada', 'bh_salida')">BORRAR</button>
-                </div>
-                <div class="fila-columna">
-                    <label>Resultado Final:</label>
-                    <textarea id="bh_salida" rows="4" readonly placeholder="Puerto (...) Buffer: (...) - Hilo: (...)"></textarea>
-                </div>
-                <div class="botones">
-                    <button class="btn-blanco" onclick="copiarBuffer('bh_salida')">COPIAR RESULTADO</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MÓDULO 3: CONSULTA NODO'S -->
+<div id="modulo2" class="modulo">
+<h3>Limpiador de Series GPON (Universal)</h3>
+<div class="formulario">
+<div class="fila-columna">
+<label>Pega tus datos (Series en fila o columna) aquí:</label>
+<textarea id="gpon_entrada" rows="4" placeholder="Soporta Nokia, Huawei y ZTE..."></textarea>
+</div>
+<div class="botones" style="margin-bottom: 20px;">
+<button class="btn-blanco" onclick="limpiarGpon('gpon_entrada', 'gpon_salida')">BORRAR</button>
+</div>
+<div class="fila-columna">
+<label>Resultado (Horizontal separado por comas):</label>
+<textarea id="gpon_salida" rows="3" readonly placeholder="Aquí aparecerá el resultado..."></textarea>
+</div>
+<div class="botones">
+<button class="btn-blanco" onclick="copiarGpon('gpon_salida')">COPIAR RESULTADO</button>
+</div>
+</div>
+<hr class="separador">
+<h3>Identificador de Buffer e Hilo (Universal)</h3>
+<div class="formulario">
+<div class="fila-columna">
+<label>Pega la información completa del ticket aquí:</label>
+<textarea id="bh_entrada" rows="5" placeholder="Ej. GPON SALIDA TOTAL CONCURRENTE... o 0/4/16... o 1/8/7..."></textarea>
+</div>
+<div class="botones" style="margin-bottom: 20px;">
+<button class="btn-blanco" onclick="limpiarBuffer('bh_entrada', 'bh_salida')">BORRAR</button>
+</div>
+<div class="fila-columna">
+<label>Resultado Final:</label>
+<textarea id="bh_salida" rows="4" readonly placeholder="Puerto (...) Buffer: (...) - Hilo: (...)"></textarea>
+</div>
+<div class="botones">
+<button class="btn-blanco" onclick="copiarBuffer('bh_salida')">COPIAR RESULTADO</button>
+</div>
+</div>
+</div>
+<!-- MÓDULO 3: CONSULTA NODO'S -->
 <div id="modulo3" class="modulo">
 <h3>Consulta Nodo's</h3>
 <div class="formulario">
@@ -135,11 +130,10 @@
 <textarea id="nodo_entrada" rows="6" placeholder="Ej: C3/0/2/UB  f88b.3735.08ed 1252 w-online(pt)Oct 25 13:02:18..."></textarea>
 </div>
 <div class="botones" style="margin-bottom: 20px;">
-<button class="btn-blanco" onclick="procesarNodos('nodo_entrada', 'nodo_salida')">ORDENAR Y EXTRAER MACs</button>
 <button class="btn-blanco" onclick="limpiarCajasNodo('nodo_entrada', 'nodo_salida')">BORRAR</button>
 </div>
 <div class="fila-columna">
-<label>MAC Address: <span id="contador_nodos" style="color: #ff9900; margin-left: 40px; font-size: 1.1em; font-weight: bold;"></span></label>
+<label>MAC Address (Ordenadas cronológicamente, sin espacios): <span id="contador_nodos" style="color: #ff9900; margin-left: 40px; font-size: 1.1em; font-weight: bold;"></span></label>
 <textarea id="nodo_salida" rows="4" readonly placeholder="aaaa.bbbb.cccc,dddd.eeee.ffff..."></textarea>
 </div>
 <div class="botones">
