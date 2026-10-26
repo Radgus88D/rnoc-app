@@ -164,3 +164,33 @@ select:focus { border-color: #4da6ff; }
     border-top: 1px solid #2d3142;
     margin: 40px 0;
 }
+
+/* --- TABLAS (MÓDULO 4: GPON MASIVA) --- */
+.caja-tabla {
+   background-color: #0f111a;
+   border: 1px solid #2d3142;
+   border-radius: 4px;
+   padding: 10px;
+   min-height: 100px;
+   overflow-x: auto;
+}
+.tabla-gpon {
+   width: 100%;
+   border-collapse: collapse;
+   font-family: 'Segoe UI', Tahoma, sans-serif;
+   font-size: 14px;
+}
+.tabla-gpon th, .tabla-gpon td {
+   border: 1px solid #2d3142;
+   padding: 10px 15px;
+   text-align: center;
+}
+.tabla-gpon th {
+   background-color: #202b4d;
+   color: #4da6ff;
+   font-weight: bold;
+}
+.tabla-gpon td {
+   background-color: #1a1d2d;
+   color: #e4e6eb;
+}
