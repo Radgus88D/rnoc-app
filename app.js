@@ -320,7 +320,7 @@ function copiarTexto(idElemento) {
    portapapeles(resultado);
 }
 
-// --- FUNCIONES MÓDULO 4: GPON MASIVA ---
+// --- FUNCIONES MÓDULO 4: GPON MASIVA (UNIVERSAL MULTIMARCA) ---
 function procesarGponMasiva() {
    let texto = document.getElementById('gm_entrada').value;
    let contenedorSalida = document.getElementById('gm_salida');
@@ -330,44 +330,67 @@ function procesarGponMasiva() {
    }
    let lineas = texto.split('\n');
    let registros = [];
-   // Diccionario de colores (Fondo y Texto) para Hilo y Buffer
    const paletaColores = {
-       1: {bg: "#0052cc", text: "#fff"}, // Azul
-       2: {bg: "#ff8c00", text: "#fff"}, // Naranja
-       3: {bg: "#28a745", text: "#fff"}, // Verde
-       4: {bg: "#8b4513", text: "#fff"}, // Café
-       5: {bg: "#6c757d", text: "#fff"}, // Gris
-       6: {bg: "#ffffff", text: "#000"}, // Blanco
-       7: {bg: "#dc3545", text: "#fff"}, // Rojo
-       8: {bg: "#343a40", text: "#fff"}, // Negro
-       9: {bg: "#ffc107", text: "#000"}, // Amarillo
-       10: {bg: "#6f42c1", text: "#fff"}, // Violeta
-       11: {bg: "#e83e8c", text: "#fff"}, // Rosa
-       12: {bg: "#17a2b8", text: "#fff"}  // Celeste
+       1: {bg: "#0052cc", text: "#fff"}, 2: {bg: "#ff8c00", text: "#fff"},
+       3: {bg: "#28a745", text: "#fff"}, 4: {bg: "#8b4513", text: "#fff"},
+       5: {bg: "#6c757d", text: "#fff"}, 6: {bg: "#ffffff", text: "#000"},
+       7: {bg: "#dc3545", text: "#fff"}, 8: {bg: "#343a40", text: "#fff"},
+       9: {bg: "#ffc107", text: "#000"}, 10: {bg: "#6f42c1", text: "#fff"},
+       11: {bg: "#e83e8c", text: "#fff"}, 12: {bg: "#17a2b8", text: "#fff"}
    };
    for (let linea of lineas) {
-       let columnas = linea.split(',');
-       // Validamos que sea una línea correcta (mínimo 14 columnas y que la col 1 parezca puerto)
-       if (columnas.length >= 14 && columnas[1].includes('/')) {
-           registros.push({
-               gpon: columnas[1].trim(),
-               hub: columnas[2].trim(),
-               olt: columnas[3].trim(),
-               rt: columnas[4].trim(),
-               bfrStr: columnas[5].trim(),
-               bfrNum: parseInt(columnas[5], 10),
-               hiloStr: columnas[6].trim(),
-               hiloNum: parseInt(columnas[6], 10),
-               tcl: columnas[7].trim(),
-               clte: columnas[13].trim()
-           });
+       if (!linea.trim() || linea.includes('Instance') || linea.includes('Index')) continue;
+       let cols = linea.split(',').map(c => c.trim());
+       if (cols.length < 10) continue;
+       let gpon = "", hub = "", olt = "", rt = "", bfrStr = "", hiloStr = "", tcl = "", clte = "N/A";
+       // --- DETECCIÓN HUAWEI --- (Contiene la palabra Huawei o GPON en la segunda columna)
+       if (linea.includes('Huawei') || cols[1].includes('GPON')) {
+           let gponMatch = cols[1].match(/GPON\s+(\d+\/\d+\/\d+)/);
+           gpon = gponMatch ? gponMatch[1] : cols[1];
+           hub = cols[3];
+           olt = cols[4];
+           rt = cols[5];
+           bfrStr = cols[6];
+           hiloStr = cols[7];
+           tcl = cols[8];
+           clte = cols[20] || "N/A"; // Huawei tiene los clientes ("Total ONT") en la columna 21
        }
+       // --- DETECCIÓN ZTE --- (Contiene "gpon_olt")
+       else if (cols[1].includes('gpon_olt')) {
+           let gponMatch = cols[1].match(/gpon_olt-(\d+\/\d+\/\d+)/);
+           gpon = gponMatch ? gponMatch[1] : cols[1];
+           hub = cols[2];
+           olt = cols[3];
+           rt = cols[4];
+           bfrStr = cols[5];
+           hiloStr = cols[6];
+           tcl = cols[7];
+           let clteMatch = linea.match(/(\d+)\s*Units/); // Buscamos X Units a lo largo de la fila
+           clte = clteMatch ? clteMatch[1] : "N/A";
+       }
+       // --- DETECCIÓN NOKIA --- (Formato clásico n/n/n/n-nnn)
+       else {
+           let gponMatch = cols[1].match(/(\d+\/\d+\/\d+\/\d+)-\d+/);
+           gpon = gponMatch ? gponMatch[1] : cols[1];
+           hub = cols[2];
+           olt = cols[3];
+           rt = cols[4];
+           bfrStr = cols[5];
+           hiloStr = cols[6];
+           tcl = cols[7];
+           clte = cols[13] || "N/A";
+       }
+       registros.push({
+           gpon: gpon, hub: hub, olt: olt, rt: rt,
+           bfrStr: bfrStr, bfrNum: parseInt(bfrStr, 10),
+           hiloStr: hiloStr, hiloNum: parseInt(hiloStr, 10),
+           tcl: tcl, clte: clte
+       });
    }
    if (registros.length === 0) {
        contenedorSalida.innerHTML = '<span style="color: #dc3545;">No se detectaron registros válidos en formato CSV.</span>';
        return;
    }
-   // Dibujamos la tabla HTML dinámica
    let html = `<table class="tabla-gpon">
 <thead>
 <tr>
