@@ -438,6 +438,34 @@ document.addEventListener("DOMContentLoaded", function() {
        gponEntrada.addEventListener('input', function() {
            formatearGponUniversal('gpon_entrada', 'gpon_salida');
        });
+       
+       // ========================================================
+// ESCUCHADOR DE RESPUESTAS DEL ROBOT FANTASMA (SAPIENS)
+// ========================================================
+window.addEventListener("message", function(event) {
+   // Verificamos que el mensaje venga de nuestra extensión
+   if (event.data && event.data.accion === "resultado_sapiens") {
+       let puerto = event.data.puerto; // Ej: "1/1/1/1"
+       let losi = parseInt(event.data.losi, 10);
+       // Reconstruimos el ID de la fila para encontrarla en la tabla
+       let idFila = 'fila-' + puerto.replace(/\//g, '-');
+       let fila = document.getElementById(idFila);
+       if (fila) {
+           // Buscamos la celda de STATUS en esa fila
+           let celdaStatus = fila.querySelector('.status-cell');
+           if (celdaStatus) {
+               // APLICAMOS LA REGLA MATEMÁTICA: <=4 es UP, >=5 es DOWN
+               if (losi <= 4) {
+                   celdaStatus.innerHTML = "UP";
+                   celdaStatus.className = "status-up status-cell";
+               } else {
+                   celdaStatus.innerHTML = "DOWN";
+                   celdaStatus.className = "status-down status-cell";
+               }
+           }
+       }
+   }
+});
    }
    // 2. Reaccionar en Identificador de Buffer e Hilo
    let bhEntrada = document.getElementById('bh_entrada');
