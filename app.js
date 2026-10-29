@@ -324,6 +324,7 @@ function copiarTexto(idElemento) {
 function procesarGponMasiva() {
    let texto = document.getElementById('gm_entrada').value;
    let contenedorSalida = document.getElementById('gm_salida');
+   window.puertosGponMasiva = []; // Reseteamos la lista global
    if (!texto.trim()) {
        contenedorSalida.innerHTML = '<span style="color: #aeb4c8;">La tabla aparecerá aquí automáticamente...</span>';
        return;
@@ -343,42 +344,19 @@ function procesarGponMasiva() {
        let cols = linea.split(',').map(c => c.trim());
        if (cols.length < 10) continue;
        let gpon = "", hub = "", olt = "", rt = "", bfrStr = "", hiloStr = "", tcl = "", clte = "N/A";
-       // --- DETECCIÓN HUAWEI --- (Contiene la palabra Huawei o GPON en la segunda columna)
        if (linea.includes('Huawei') || cols[1].includes('GPON')) {
            let gponMatch = cols[1].match(/GPON\s+(\d+\/\d+\/\d+)/);
            gpon = gponMatch ? gponMatch[1] : cols[1];
-           hub = cols[3];
-           olt = cols[4];
-           rt = cols[5];
-           bfrStr = cols[6];
-           hiloStr = cols[7];
-           tcl = cols[8];
-           clte = cols[20] || "N/A"; // Huawei tiene los clientes ("Total ONT") en la columna 21
-       }
-       // --- DETECCIÓN ZTE --- (Contiene "gpon_olt")
-       else if (cols[1].includes('gpon_olt')) {
+           hub = cols[3]; olt = cols[4]; rt = cols[5]; bfrStr = cols[6]; hiloStr = cols[7]; tcl = cols[8]; clte = cols[20] || "N/A";
+       } else if (cols[1].includes('gpon_olt')) {
            let gponMatch = cols[1].match(/gpon_olt-(\d+\/\d+\/\d+)/);
            gpon = gponMatch ? gponMatch[1] : cols[1];
-           hub = cols[2];
-           olt = cols[3];
-           rt = cols[4];
-           bfrStr = cols[5];
-           hiloStr = cols[6];
-           tcl = cols[7];
-           let clteMatch = linea.match(/(\d+)\s*Units/); // Buscamos X Units a lo largo de la fila
-           clte = clteMatch ? clteMatch[1] : "N/A";
-       }
-       // --- DETECCIÓN NOKIA --- (Formato clásico n/n/n/n-nnn)
-       else {
+           hub = cols[2]; olt = cols[3]; rt = cols[4]; bfrStr = cols[5]; hiloStr = cols[6]; tcl = cols[7];
+           let clteMatch = linea.match(/(\d+)\s*Units/); clte = clteMatch ? clteMatch[1] : "N/A";
+       } else {
            let gponMatch = cols[1].match(/(\d+\/\d+\/\d+\/\d+)-\d+/);
            gpon = gponMatch ? gponMatch[1] : cols[1];
-           hub = cols[2];
-           olt = cols[3];
-           rt = cols[4];
-           bfrStr = cols[5];
-           hiloStr = cols[6];
-           tcl = cols[7];
-           clte = cols[13] || "N/A";
+           hub = cols[2]; olt = cols[3]; rt = cols[4]; bfrStr = cols[5]; hiloStr = cols[6]; tcl = cols[7]; clte = cols[13] || "N/A";
        }
        registros.push({
            gpon: gpon, hub: hub, olt: olt, rt: rt,
@@ -386,23 +364,29 @@ function procesarGponMasiva() {
            hiloStr: hiloStr, hiloNum: parseInt(hiloStr, 10),
            tcl: tcl, clte: clte
        });
+       // Guardamos el puerto limpio en la variable global
+       window.puertosGponMasiva.push(gpon);
    }
    if (registros.length === 0) {
-       contenedorSalida.innerHTML = '<span style="color: #dc3545;">No se detectaron registros válidos en formato CSV.</span>';
+       contenedorSalida.innerHTML = '<span style="color: #dc3545;">No se detectaron registros válidos.</span>';
        return;
    }
-   let html = `<table class="tabla-gpon">
+   // Dibujamos la tabla solo con la columna STATUS extra
+   let html = `<table class="tabla-gpon" id="tabla_masiva_final">
 <thead>
 <tr>
 <th>GPON</th><th>HUB</th><th>OLT</th><th>RT</th>
 <th>BFR</th><th>HILO</th><th>TCL</th><th>CLTE</th>
+<th>STATUS</th>
 </tr>
 </thead>
 <tbody>`;
    for (let reg of registros) {
        let colBfr = paletaColores[reg.bfrNum] || {bg: "transparent", text: "#fff"};
        let colHilo = paletaColores[reg.hiloNum] || {bg: "transparent", text: "#fff"};
-       html += `<tr>
+       // Añadimos un ID único a cada fila
+       let idFila = 'fila-' + reg.gpon.replace(/\//g, '-');
+       html += `<tr id="${idFila}">
 <td>${reg.gpon}</td>
 <td>${reg.hub}</td>
 <td>${reg.olt}</td>
@@ -411,10 +395,37 @@ function procesarGponMasiva() {
 <td style="background-color: ${colHilo.bg}; color: ${colHilo.text}; font-weight: bold;">${reg.hiloStr}</td>
 <td>${reg.tcl}</td>
 <td>${reg.clte}</td>
+<td class="status-espera status-cell">--</td>
 </tr>`;
    }
    html += `</tbody></table>`;
    contenedorSalida.innerHTML = html;
+}
+function limpiarGponMasiva() {
+   document.getElementById('gm_entrada').value = '';
+   document.getElementById('gm_ip_olt').value = '';
+   document.getElementById('gm_salida').innerHTML = '<span style="color: #aeb4c8;">La tabla aparecerá aquí automáticamente...</span>';
+   document.getElementById('gm_status_txt').innerText = '';
+   window.puertosGponMasiva = [];
+}
+function copiarTablaGponMasiva() {
+   let tabla = document.getElementById('tabla_masiva_final');
+   if (!tabla) { alert("No hay tabla para recortar."); return; }
+   chrome.runtime.sendMessage({
+       accion: "capturar_div_local",
+       elementoId: "gm_salida"
+   });
+}
+function iniciarValidacionFantasma() {
+   let ip = document.getElementById('gm_ip_olt').value.trim();
+   if (!ip) { alert("Debes ingresar la IP de la OLT para validar."); return; }
+   if (window.puertosGponMasiva.length === 0) { alert("No hay puertos detectados en la tabla para validar."); return; }
+   document.getElementById('gm_status_txt').innerText = "(Validando en SAPIENS... por favor espera)";
+   chrome.runtime.sendMessage({
+       accion: "validar_fantasma",
+       ip: ip,
+       puertos: window.puertosGponMasiva
+   });
 }
 
 // ========================================================
