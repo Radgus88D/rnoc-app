@@ -494,86 +494,52 @@ window.addEventListener("message", function(event) {
 });
 
 // ========================================================
-
 // COMUNICACIÓN CON LA EXTENSIÓN PARA RECEPCIÓN DE DATOS
-
 // ========================================================
-
 if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
-
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
-        // Función 1: Para cuando el Módulo 2 envía la imagen
-
-        if (request.accion === "ejecutar_copiado") {
-
-            fetch(request.dataUrl)
-
-            .then(res => res.blob())
-
-            .then(blob => {
-
-                let item = new ClipboardItem({ "image/png": blob });
-
-                navigator.clipboard.write([item]).then(() => {
-
-                    alert("✅ ¡Captura copiada al portapapeles con éxito!");
-
-                });
-
-            });
-
-        }
-
-        // Función 2: Para cuando Sapiens responde con los valores LOSi (Módulo 4)
-
-        else if (request.accion === "rebote_losi") {
-
-            let puertoSapiens = request.puerto;
-
-            let losiValor = parseInt(request.losi, 10);
-
-            // Reconstruimos el ID de la fila para encontrarla en la tabla
-
-            let idFila = 'fila-' + puertoSapiens.replace(/\//g, '-');
-
-            let fila = document.getElementById(idFila);
-
-            if (fila) {
-
-                let celdaStatus = fila.querySelector('.status-cell');
-
-                if (celdaStatus) {
-
-                    // APLICAMOS LA REGLA: <=4 UP (Verde), >=5 DOWN (Rojo)
-
-                    if (losiValor <= 4) {
-
-                        celdaStatus.innerHTML = "UP";
-
-                        celdaStatus.className = "status-up status-cell";
-
-                    } else {
-
-                        celdaStatus.innerHTML = "DOWN";
-
-                        celdaStatus.className = "status-down status-cell";
-
-                    }
-
-                }
-
-            }
-
-            // Avisamos que ya llegaron datos
-
-            let textoStatus = document.getElementById('gm_status_txt');
-
-            if(textoStatus) textoStatus.innerText = "(Datos recibidos desde Sapiens ✓)";
-
-        }
-
-    });
-
+   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+       // Función 1: Para cuando el Módulo 2 envía la imagen
+       if (request.accion === "ejecutar_copiado") {
+           fetch(request.dataUrl)
+           .then(res => res.blob())
+           .then(blob => {
+               let item = new ClipboardItem({ "image/png": blob });
+               navigator.clipboard.write([item]).then(() => {
+                   alert("✅ ¡Captura copiada al portapapeles con éxito!");
+               });
+           });
+       }
+       // Función 2: Para cuando Sapiens responde con los valores LOSi (Módulo 4)
+       else if (request.accion === "rebote_losi") {
+           let puertoSapiens = request.puerto;
+           let losiValor = parseInt(request.losi, 10);
+           let idFila = 'fila-' + puertoSapiens.replace(/\//g, '-');
+           let fila = document.getElementById(idFila);
+           if (fila) {
+               let celdaStatus = fila.querySelector('.status-cell');
+               if (celdaStatus) {
+                   if (losiValor <= 4) {
+                       celdaStatus.innerHTML = "UP";
+                       celdaStatus.className = "status-up status-cell";
+                   } else {
+                       celdaStatus.innerHTML = "DOWN";
+                       celdaStatus.className = "status-down status-cell";
+                   }
+               }
+           }
+       }
+       // Función 3: Actualización de la barra de progreso (Módulo 4)
+       else if (request.accion === "actualizar_progreso") {
+           let textoStatus = document.getElementById('gm_status_txt');
+           if(textoStatus) {
+               textoStatus.innerText = request.mensaje;
+               // Si el mensaje indica que terminó, lo pintamos de verde
+               if (request.mensaje.includes("Completo") || request.mensaje.includes("100%")) {
+                   textoStatus.style.color = "#28a745";
+               } else if (request.mensaje.includes("Error")) {
+                   textoStatus.style.color = "#dc3545"; // Rojo si falla
+               }
+           }
+       }
+   });
 }
- 
