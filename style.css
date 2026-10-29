@@ -194,3 +194,17 @@ select:focus { border-color: #4da6ff; }
    background-color: #1a1d2d;
    color: #e4e6eb;
 }
+
+/* --- ESTILOS EXTRA PARA GPON MASIVA --- */
+.status-up {
+   color: #28a745;
+   font-weight: bold;
+}
+.status-down {
+   color: #dc3545;
+   font-weight: bold;
+}
+.status-espera {
+   color: #aeb4c8;
+   font-style: italic;
+}
