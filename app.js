@@ -417,17 +417,18 @@ function copiarTablaGponMasiva() {
    });
 }
 
-// Envía la lista de puertos a la extensión para iniciar el proceso fantasma
+// Envía la lista de puertos usando la MISMA conexión del Módulo 2
 function iniciarValidacionFantasma() {
    let ip = document.getElementById('gm_ip_olt').value.trim();
    if (!ip) { alert("Debes ingresar la IP de la OLT para validar."); return; }
    if (window.puertosGponMasiva.length === 0) { alert("No hay puertos detectados en la tabla para validar."); return; }
    let textoStatus = document.getElementById('gm_status_txt');
    textoStatus.innerText = "(Iniciando conexión con SAPIENS...)";
-   textoStatus.style.color = "#4da6ff"; // Cambiamos a azul para indicar proceso activo
-   // Enviamos el aviso a la extensión de Chrome
+   textoStatus.style.color = "#4da6ff";
+   // Usamos el puente comprobado del Módulo 2, agregando el modo "fantasma"
    chrome.runtime.sendMessage({
-       accion: "validar_fantasma",
+       accion: "activar_sapiens",
+       modo: "fantasma",
        ip: ip,
        puertos: window.puertosGponMasiva
    });
