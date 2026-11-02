@@ -408,16 +408,16 @@ function limpiarGponMasiva() {
    document.getElementById('gm_status_txt').innerText = '';
    window.puertosGponMasiva = [];
 }
-// Envía la orden usando el Puente Web
 function copiarTablaGponMasiva() {
    let tabla = document.getElementById('tabla_masiva_final');
    if (!tabla) { alert("No hay tabla para recortar."); return; }
-   window.postMessage({
+   chrome.runtime.sendMessage({
        accion: "capturar_div_local",
        elementoId: "gm_salida"
-   }, "*");
+   });
 }
-// Envía la lista de puertos usando el Puente Web
+
+// Envía la lista de puertos usando la MISMA conexión del Módulo 2
 function iniciarValidacionFantasma() {
    let ip = document.getElementById('gm_ip_olt').value.trim();
    if (!ip) { alert("Debes ingresar la IP de la OLT para validar."); return; }
@@ -425,54 +425,43 @@ function iniciarValidacionFantasma() {
    let textoStatus = document.getElementById('gm_status_txt');
    textoStatus.innerText = "(Iniciando conexión con SAPIENS...)";
    textoStatus.style.color = "#4da6ff";
-   window.postMessage({
+   // Usamos el puente comprobado del Módulo 2, agregando el modo "fantasma"
+   chrome.runtime.sendMessage({
        accion: "activar_sapiens",
        modo: "fantasma",
        ip: ip,
        puertos: window.puertosGponMasiva
-   }, "*");
+   });
 }
+
 // ========================================================
 // AUTOMATIZACIÓN ZERO-CLICK (EJECUCIÓN AL PEGAR TEXTO)
 // ========================================================
 document.addEventListener("DOMContentLoaded", function() {
+   // 1. Reaccionar en Limpiador de Series GPON
    let gponEntrada = document.getElementById('gpon_entrada');
-   if (gponEntrada) gponEntrada.addEventListener('input', function() { formatearGponUniversal('gpon_entrada', 'gpon_salida'); });
-   let bhEntrada = document.getElementById('bh_entrada');
-   if (bhEntrada) bhEntrada.addEventListener('input', function() { identificarBufferHiloUniversal('bh_entrada', 'bh_salida'); });
-   let nodoEntrada = document.getElementById('nodo_entrada');
-   if (nodoEntrada) nodoEntrada.addEventListener('input', function() { procesarNodos('nodo_entrada', 'nodo_salida'); });
-   let gmEntrada = document.getElementById('gm_entrada');
-   if (gmEntrada) gmEntrada.addEventListener('input', procesarGponMasiva);
-});
-// ========================================================
-// ESCUCHADOR DE RECEPCIÓN DE DATOS DESDE EL PUENTE
+   if (gponEntrada) {
+       gponEntrada.addEventListener('input', function() {
+           formatearGponUniversal('gpon_entrada', 'gpon_salida');
+       });
+       
+       // ========================================================
+// ESCUCHADOR DE RESPUESTAS DEL ROBOT FANTASMA (SAPIENS)
 // ========================================================
 window.addEventListener("message", function(event) {
-   // Verificamos que el mensaje venga de nuestra propia ventana
-   if (event.source !== window || !event.data || !event.data.accion) return;
-   let request = event.data;
-   // Función 1: Captura de imagen
-   if (request.accion === "ejecutar_copiado") {
-       fetch(request.dataUrl)
-       .then(res => res.blob())
-       .then(blob => {
-           let item = new ClipboardItem({ "image/png": blob });
-           navigator.clipboard.write([item]).then(() => {
-               alert("✅ ¡Captura copiada al portapapeles con éxito!");
-           });
-       });
-   }
-   // Función 2: Recepción de LOSi/LOBi y coloreado
-   else if (request.accion === "rebote_losi") {
-       let puertoSapiens = request.puerto;
-       let losiValor = parseInt(request.losi, 10);
-       let idFila = 'fila-' + puertoSapiens.replace(/\//g, '-');
+   // Verificamos que el mensaje venga de nuestra extensión
+   if (event.data && event.data.accion === "resultado_sapiens") {
+       let puerto = event.data.puerto; // Ej: "1/1/1/1"
+       let losi = parseInt(event.data.losi, 10);
+       // Reconstruimos el ID de la fila para encontrarla en la tabla
+       let idFila = 'fila-' + puerto.replace(/\//g, '-');
        let fila = document.getElementById(idFila);
        if (fila) {
+           // Buscamos la celda de STATUS en esa fila
            let celdaStatus = fila.querySelector('.status-cell');
            if (celdaStatus) {
-               if (losiValor <= 4) {
+               // APLICAMOS LA REGLA MATEMÁTICA: <=4 es UP, >=5 es DOWN
+               if (losi <= 4) {
                    celdaStatus.innerHTML = "UP";
                    celdaStatus.className = "status-up status-cell";
                } else {
@@ -482,20 +471,8 @@ window.addEventListener("message", function(event) {
            }
        }
    }
-   // Función 3: Actualización de la barra de progreso
-   else if (request.accion === "actualizar_progreso") {
-       let textoStatus = document.getElementById('gm_status_txt');
-       if(textoStatus) {
-           textoStatus.innerText = request.mensaje;
-           if (request.mensaje.includes("Completo") || request.mensaje.includes("100%")) {
-               textoStatus.style.color = "#28a745";
-           } else if (request.mensaje.includes("Error")) {
-               textoStatus.style.color = "#dc3545";
-           }
-       }
-   }
 });
-   
+   }
    // 2. Reaccionar en Identificador de Buffer e Hilo
    let bhEntrada = document.getElementById('bh_entrada');
    if (bhEntrada) {
