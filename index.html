@@ -145,28 +145,43 @@
         
 <!-- MÓDULO 4: GPON MASIVA -->
 <div id="modulo4" class="modulo">
-<h3>GPON Masiva</h3>
-<div class="formulario">
-<div class="fila-columna">
-<label>Pega los registros de GPON Masiva aquí:</label>
-<textarea id="gm_entrada" rows="6" placeholder="Ej: 128450560,1/1/2/9-399,H27,026,RT17,07,09,T00..."></textarea>
-</div>
-<!-- NUEVO BLOQUE DE CONTROLES -->
-<div class="botones" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
-<button class="btn-blanco" onclick="limpiarGponMasiva()">BORRAR TODO</button>
-<button class="btn-blanco" onclick="copiarTablaGponMasiva()">RECORTE</button>
-<!-- Entrada de IP y Botón de Validación -->
-<div style="display: flex; align-items: center; gap: 10px; margin-left: auto; background-color: #202b4d; padding: 5px 15px; border-radius: 6px; border: 1px solid #4da6ff;">
-<label style="color: #4da6ff; font-weight: bold; margin-bottom: 0;">IP OLT:</label>
-<input type="text" id="gm_ip_olt" placeholder="Ej. 10.1.188.203" style="width: 130px; padding: 8px; border-radius: 4px; border: 1px solid #2d3142; background: #0f111a; color: white;">
-<button class="btn-blanco" style="background-color: #4da6ff; color: #0f111a;" onclick="iniciarValidacionFantasma()">VALIDAR SAPIENS</button>
+<h3>GPON Masiva - Dashboard Automático</h3>
+<!-- Sección 1: Pegar y Guardar -->
+<div class="panel-masiva">
+<label>1. Pega la tabla completa de Sapiens aquí:</label>
+<textarea id="gm_entrada" rows="4" placeholder="Ej: 285282831,gpon_olt-1/18/15-033,H04..."></textarea>
+<div class="fila-controles-guardar">
+<input type="text" id="gm_nombre_masiva" placeholder="Escribe el nombre para la masiva (Ej. PRUEBA MORELIA)">
+<button class="btn-blanco" onclick="guardarMasiva()">Guardar</button>
 </div>
 </div>
-<div class="fila-columna">
-<label>Resultado Visual (Se actualizará al validar): <span id="gm_status_txt" style="color: #ff9900; margin-left: 15px;"></span></label>
-<div id="gm_salida" class="caja-tabla">
-<span style="color: #aeb4c8;">La tabla aparecerá aquí automáticamente...</span>
+<!-- Sección 2: Masivas Activas -->
+<div class="panel-masiva">
+<h4 style="color: #ff9900; margin-bottom: 10px;">📁 MASIVAS ACTIVAS</h4>
+<div id="lista_masivas" class="lista-masivas">
+<span style="color: #aeb4c8; font-style: italic;">No hay masivas guardadas.</span>
 </div>
+</div>
+<!-- Sección 3: Dashboard Activo (Se muestra al hacer clic en una masiva) -->
+<div id="dashboard_masiva" class="panel-masiva" style="display: none;">
+<div class="dashboard-header">
+<span id="dash_title" style="font-size: 18px; font-weight: bold; color: #4da6ff;"></span>
+<div class="controles-consulta">
+<input type="text" id="gm_ip_olt" placeholder="IP OLT (Ej. 10.0.101.105)">
+<button class="btn-verde" onclick="iniciarConsultaTotal()">▶ ONT OFF LINE + POTENCIAS</button>
+</div>
+</div>
+<div id="gm_status_txt" style="color: #ff9900; margin-bottom: 10px; font-weight: bold;"></div>
+<div class="caja-tabla">
+<table class="tabla-gpon" id="tabla_masiva_final">
+<thead>
+<tr>
+<th>GPON</th><th>HUB</th><th>OLT</th><th>RT</th><th>BFR</th><th>HILO</th><th>TCL</th><th>CLTE</th>
+<th>STATUS</th><th>POT</th><th>LAST POT</th><th>POT ACT</th><th>DIFERENCIA</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 </div>
 </div>
 </div>
